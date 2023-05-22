@@ -51,6 +51,8 @@ public class TowerManager {
 
         contNumMov = 0;
 
+        this.objetivo = objetivo;
+
         for (int i=objetivo; i >= 1; i--){
             String Disco = "";
             for (int j=i; j > 0; j--){
@@ -112,6 +114,14 @@ public class TowerManager {
         torre3.push(torre1.pop());
 
         UpdateContNumMov();
+
+        HasWon();
+    }
+
+    private void HasWon() {
+        if(torre1.isEmpty() && torre2.isEmpty()){
+            JOptionPane.showMessageDialog(null, "Lo lograste!!!");
+        }
     }
 
     public void moveFrom2To1() {
@@ -140,6 +150,8 @@ public class TowerManager {
         torre3.push(torre2.pop());
 
         UpdateContNumMov();
+
+        HasWon();
     }
 
     public void moveFrom3To1() {
@@ -147,13 +159,165 @@ public class TowerManager {
 
         String discoTop = torre3.peek();
 
-        if(!torre3.isEmpty()){
-            if(discoTop.compareTo(torre3.peek()) > 0) return;
+        if(!torre1.isEmpty()){
+            if(discoTop.compareTo(torre1.peek()) > 0) return;
         }
 
-        torre3.push(torre1.pop());
+        torre1.push(torre3.pop());
 
         UpdateContNumMov();
+    }
+
+    public void moveFrom3To2() {
+        if(torre3.isEmpty()) return;
+
+        String discoTop = torre3.peek();
+
+        if(!torre2.isEmpty()){
+            if(discoTop.compareTo(torre2.peek()) > 0) return;
+        }
+
+        torre2.push(torre3.pop());
+
+        UpdateContNumMov();
+    }
+
+    boolean stop = false;
+    JTable jtable1;
+    JTable jtable2;
+    JTable jtable3;
+
+    public void Resolver(JTable jtable1, JTable jtable2, JTable jtable3){
+        stop = false;
+        this.jtable1 = jtable1;
+        this.jtable2 = jtable2;
+        this.jtable3 = jtable3;
+        HanoiRecursivo(objetivo, torre1, torre2, torre3);
+
+    }
+
+    private void OrigenDestino(Stack<String> torreOrigen, Stack<String> torreDestino){
+        if(!stop){
+            torreDestino.push(torreOrigen.pop());
+
+            FillTowers(1, jtable1);
+            FillTowers(2, jtable2);
+            FillTowers(3, jtable3);
+
+            UpdateContNumMov();
+
+            JOptionPane pane = new JOptionPane("Paso #" + contNumMov + "\n\n Continuar?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+            JDialog dialog = pane.createDialog("Numero de Pasos");
+            dialog.setLocation(600,600);
+            dialog.setVisible(true);
+
+            int opt = (int) pane.getValue();
+
+            if(opt == JOptionPane.NO_OPTION){
+                stop = true;
+            }
+        }
+    }
+
+    private void HanoiRecursivo(int objetivo, Stack<String> torreOrigen, Stack<String> torreAuxiliar,Stack<String> torreDestino){
+        if(objetivo == 1){
+            OrigenDestino(torreOrigen, torreDestino);
+        }
+        else{
+            HanoiRecursivo(objetivo-1, torreOrigen, torreDestino, torreAuxiliar);
+
+            OrigenDestino(torreOrigen, torreDestino);
+
+            HanoiRecursivo(objetivo-1, torreAuxiliar, torreOrigen, torreDestino);
+        }
+    }
+
+    public void FillTowers(int towerNumber, JTable tableTower) {
+
+        tableTower.setModel(PresentarTorre(towerNumber));
+
+        DefaultTableCellRenderer render = new DefaultTableCellRenderer();
+        render.setHorizontalAlignment(SwingConstants.CENTER);
+        tableTower.getColumnModel().getColumn(0).setCellRenderer(render);
+    }
+
+    public void ResolveAnyUpdate(JTable jtable1, JTable jtable2, JTable jtable3){
+        stop = false;
+        this.jtable1 = jtable1;
+        this.jtable2 = jtable2;
+        this.jtable3 = jtable3;
+        HanoiRecursivoAny(objetivo, torre1, torre2, torre3);
+
+        FillTowers(1, jtable1);
+        FillTowers(2, jtable2);
+        FillTowers(3, jtable3);
+    }
+
+    public void HanoiRecursivoAny(int objetivo, Stack<String> rodA, Stack<String> rodB, Stack<String> rodC) {
+        if (objetivo == 0) return;
+
+        Stack<String>[] rods = new Stack[]{rodA, rodB, rodC};
+
+        // Find the rod with the disk n.
+        Stack<String> sourceRod = null, targetRod = rodC, auxRod = null;
+        for (Stack<String> rod : rods) {
+            if (!rod.isEmpty() && rod.peek().length() == objetivo) {
+                sourceRod = rod;
+                auxRod = rod == rodA ? (targetRod == rodB ? rodC : rodB) : (targetRod == rodC ? rodA : rodC);
+                break;
+            }
+        }
+
+        if (sourceRod == targetRod) {
+            // If the n-th disk is already at the target, solve for n-1
+            HanoiRecursivoAny(objetivo - 1, rodA, rodB, rodC);
+        } else {
+            // Move all disks smaller than n from source to aux
+            moveDisks(sourceRod, auxRod, objetivo - 1);
+
+            // Move n-th disk to target
+            targetRod.push(sourceRod.pop());
+
+            // Move disks back from aux to source
+            moveDisks(auxRod, sourceRod, objetivo - 1);
+
+            // Solve for n-1
+            HanoiRecursivoAny(objetivo - 1, rodA, rodB, rodC);
+        }
+    }
+
+    public void moveDisks(Stack<String> source, Stack<String> target, int objetivo) {
+        if (objetivo <= 0 || source.isEmpty()) return;
+
+        if (source.peek().length() == objetivo) {
+            target.push(source.pop());
+            OrigenDestinoAny(source, target);
+        } else {
+            moveDisks(source, target, objetivo - 1);
+        }
+    }
+
+    private void OrigenDestinoAny(Stack<String> torreOrigen, Stack<String> torreDestino){
+        if(!stop){
+            torreDestino.push(torreOrigen.pop());
+
+            FillTowers(1, jtable1);
+            FillTowers(2, jtable2);
+            FillTowers(3, jtable3);
+
+            UpdateContNumMov();
+
+            JOptionPane pane = new JOptionPane("Paso #" + contNumMov + "\n\n Continuar?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+            JDialog dialog = pane.createDialog("Numero de Pasos");
+            dialog.setLocation(600,600);
+            dialog.setVisible(true);
+
+            int opt = (int) pane.getValue();
+
+            if(opt == JOptionPane.NO_OPTION){
+                stop = true;
+            }
+        }
     }
 }
 

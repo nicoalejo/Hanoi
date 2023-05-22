@@ -1,6 +1,5 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -25,6 +24,11 @@ public class mainForm extends JFrame {
     private JButton btnIniciar;
     private JButton btnResolver;
     private JButton btnReiniciar;
+    private JTextField textFNumber2;
+    private JButton btnSuma1N;
+    private JButton btnSumaImpares;
+    private JButton btnSumaAB;
+    private JButton solveAnyButton;
 
     private  FactorialRecursivo factorialClase = new FactorialRecursivo();
     private  TowerManager towerManager;
@@ -53,7 +57,7 @@ public class mainForm extends JFrame {
         btnResolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                Resolver();
             }
         });
         bButton1.addActionListener(new ActionListener() {
@@ -65,33 +69,85 @@ public class mainForm extends JFrame {
         cButton1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                MoveFrom1to3();
             }
         });
         aButton2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                MoveFrom2to1();
             }
         });
         cButton2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                MoveFrom2to3();
             }
         });
         aButton3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                MoveFrom3to1();
             }
         });
         bButton3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                MoveFrom3to2();
+            }
+        });
+        btnSuma1N.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
             }
         });
+        solveAnyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                towerManager.ResolveAnyUpdate(torre1, torre2, torre3);
+            }
+        });
+    }
+
+    private void Resolver() {
+        towerManager.Resolver(torre1, torre2, torre3);
+
+    }
+
+    private void MoveFrom3to2() {
+        towerManager.moveFrom3To2();
+        FillTowers(3, torre3);
+        FillTowers(2, torre2);
+        textNumMov.setText(String.valueOf(towerManager.getContNumMov()));
+    }
+
+    private void MoveFrom3to1() {
+        towerManager.moveFrom3To1();
+        FillTowers(3, torre3);
+        FillTowers(1, torre1);
+        textNumMov.setText(String.valueOf(towerManager.getContNumMov()));
+    }
+
+    private void MoveFrom2to3() {
+        towerManager.moveFrom2To3();
+        FillTowers(2, torre2);
+        FillTowers(3, torre3);
+        textNumMov.setText(String.valueOf(towerManager.getContNumMov()));
+    }
+
+    private void MoveFrom2to1() {
+        towerManager.moveFrom2To1();
+        FillTowers(1, torre1);
+        FillTowers(2, torre2);
+        textNumMov.setText(String.valueOf(towerManager.getContNumMov()));
+    }
+
+    private void MoveFrom1to3() {
+        towerManager.moveFrom1To3();
+        FillTowers(1, torre1);
+        FillTowers(3, torre3);
+        textNumMov.setText(String.valueOf(towerManager.getContNumMov()));
     }
 
     private void MoveFrom1To2() {
@@ -111,6 +167,8 @@ public class mainForm extends JFrame {
         textNumMov.setText(String.valueOf(towerManager.getContNumMov()));
         textMinMov.setText(String.valueOf(towerManager.getNumMinMov()));
         FillTowers(1, torre1);
+        FillTowers(2, torre2);
+        FillTowers(3, torre3);
     }
 
     private void FillNumberDiscs() {
@@ -119,7 +177,7 @@ public class mainForm extends JFrame {
         }
     }
 
-    private void FillTowers(int towerNumber, JTable tableTower) {
+    public void FillTowers(int towerNumber, JTable tableTower) {
 
         tableTower.setModel(towerManager.PresentarTorre(towerNumber));
 
@@ -157,7 +215,4 @@ public class mainForm extends JFrame {
         return mainPanel;
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
 }
